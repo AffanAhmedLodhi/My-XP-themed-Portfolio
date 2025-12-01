@@ -366,8 +366,8 @@ export default function Desktop() {
 
         <div className="h-full bg-[#1290e2] border-l border-[#0d7dc5] pl-2 pr-2 md:pr-4 flex items-center gap-2 text-white text-xs shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2)] shrink-0">
             <div className="hidden md:flex gap-1.5">
-               <Github size={14} className="hover:text-black cursor-pointer transition-colors" />
-               <Linkedin size={14} className="hover:text-blue-900 cursor-pointer transition-colors" />
+               <Github size={14} className="hover:text-black cursor-pointer transition-colors" onClick={()=>{window.open("https://github.com/AffanAhmedLodhi/My-XP-themed-Portfolio")}}/>
+               <Linkedin size={14} className="hover:text-blue-900 cursor-pointer transition-colors" onClick={()=>{window.open("https://www.linkedin.com/in/affan-ahmed-43878927b/")}}/>
             </div>
             <div className="w-4 h-4 bg-blue-300 rounded-full border border-blue-500 flex items-center justify-center text-[10px] font-bold text-blue-900 shadow-sm cursor-help">?</div>
             <span className="">{time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>

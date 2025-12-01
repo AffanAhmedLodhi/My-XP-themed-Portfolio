@@ -200,6 +200,7 @@ export const OutlookApp = () => {
                             onChange={(e) => setTo(e.target.value)}
                             className="flex-1 border border-[#7f9db9] h-5 px-1 text-xs outline-none focus:border-[#0055ea]"
                             required
+                            disabled
                         />
                     </div>
                     <div className="flex items-center gap-2">
