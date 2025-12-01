@@ -54,8 +54,9 @@ export const LoginScreen = ({ onLogin }: { onLogin: () => void }) => {
              Turn off computer
           </button>
           <div className="text-white/50 text-xs">
-             After you log on, you can add or change accounts.<br/>
-             Just go to Control Panel and click User Accounts.
+             {/* After you log on, you can add or change accounts. */}
+             <br/>
+             {/* Just go to Control Panel and click User Accounts. */}
           </div>
        </div>
     </div>
