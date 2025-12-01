@@ -7,7 +7,7 @@ interface WindowProps {
   app: WindowApp;
   onClose: (id: string) => void;
   onMinimize: (id: string) => void;
-  onMaximize: (id: string) => void; // New prop
+  onMaximize: (id: string) => void;
   onResize: (id: string, w: number, h: number) => void;
   isActive: boolean;
   onFocus: (id: string) => void;
@@ -18,13 +18,12 @@ export const Window: React.FC<WindowProps> = ({ app, onClose, onMinimize, onMaxi
   
   const defaultPos = useMemo(() => app.defaultPos || { x: 50, y: 50 }, [app.defaultPos]);
   
-  // We always call the hook, but we conditionally use the handler
-  const { pos, onMouseDown } = useDraggable(app.id, defaultPos, onFocus);
+  const { pos, onMouseDown, onTouchStart } = useDraggable(app.id, defaultPos, onFocus);
 
   const resizeRef = useRef<{w: number, h: number, x: number, y: number} | null>(null);
   
   const handleResizeStart = (e: React.MouseEvent) => {
-    if (isMaximized) return; // Prevent resize if maximized
+    if (isMaximized) return;
     e.stopPropagation();
     e.preventDefault();
     resizeRef.current = {
@@ -71,33 +70,35 @@ export const Window: React.FC<WindowProps> = ({ app, onClose, onMinimize, onMaxi
         top: pos.y, 
         width: app.size.w, 
         height: app.size.h,
+        // Mobile Responsiveness: Ensure window never exceeds viewport
+        maxWidth: '100vw',
+        maxHeight: 'calc(100dvh - 34px)', // 30px taskbar + border
         backgroundColor: '#ece9d8'
       }}
       onMouseDown={() => onFocus(app.id)}
+      onTouchStart={() => onFocus(app.id)}
     >
       {/* Title Bar */}
       <div 
-        className={`h-8 flex items-center justify-between px-2 select-none cursor-default shrink-0
+        className={`h-8 flex items-center justify-between px-2 select-none cursor-default shrink-0 touch-none
           ${isActive 
             ? 'bg-gradient-to-r from-[#0058ee] via-[#3593ff] to-[#288eff]' 
             : 'bg-gradient-to-r from-[#7697c5] to-[#8faace]'}`}
-        // Only allow dragging if NOT maximized
         onMouseDown={!isMaximized ? onMouseDown : undefined}
-        // Double click title bar to toggle maximize
+        onTouchStart={!isMaximized ? onTouchStart : undefined}
         onDoubleClick={() => onMaximize(app.id)}
       >
         <div className="flex items-center gap-2 text-white font-bold text-sm drop-shadow-md shadow-black overflow-hidden">
           {app.iconComp}
           <span className="pt-0.5 drop-shadow-[1px_1px_0_rgba(0,0,0,0.5)] truncate">{app.title}</span>
         </div>
-        <div className="flex gap-1 shrink-0" onMouseDown={e => e.stopPropagation()}>
+        <div className="flex gap-1 shrink-0" onMouseDown={e => e.stopPropagation()} onTouchStart={e => e.stopPropagation()}>
            <button onClick={() => onMinimize(app.id)} className="w-5 h-5 rounded-[3px] bg-[#2d66f4] border border-white/60 hover:brightness-110 flex items-center justify-center shadow-sm">
              <Minus size={12} color="white" strokeWidth={4} className="mt-2"/>
            </button>
            <button onClick={() => onMaximize(app.id)} className="w-5 h-5 rounded-[3px] bg-[#2d66f4] border border-white/60 hover:brightness-110 flex items-center justify-center shadow-sm">
-             {/* Toggle Icon based on state */}
              {isMaximized ? (
-                <Copy size={12} color="white" strokeWidth={3} className="transform rotate-90"/> // Poor man's restore icon
+                <Copy size={12} color="white" strokeWidth={3} className="transform rotate-90"/>
              ) : (
                 <Square size={12} color="white" strokeWidth={3} />
              )}
@@ -110,11 +111,11 @@ export const Window: React.FC<WindowProps> = ({ app, onClose, onMinimize, onMaxi
 
       {/* Menu Bar */}
       {app.hasMenu && (
-        <div className="h-6 bg-[#ece9d8] border-b border-[#aca899] flex items-center px-1 text-xs select-none shrink-0">
+        <div className="h-6 bg-[#ece9d8] border-b border-[#aca899] flex items-center px-1 text-xs select-none shrink-0 overflow-x-auto">
           {['File', 'Edit', 'View', 'Favorites', 'Tools', 'Help'].map(m => (
-            <span key={m} className="px-2 py-0.5 hover:bg-[#316ac5] hover:text-white cursor-pointer transition-colors">{m}</span>
+            <span key={m} className="px-2 py-0.5 hover:bg-[#316ac5] hover:text-white cursor-pointer transition-colors whitespace-nowrap">{m}</span>
           ))}
-          <div className="ml-auto">
+          <div className="ml-auto pl-2">
              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/2048px-Microsoft_logo.svg.png" className="h-3 opacity-50 grayscale" alt="logo"/>
           </div>
         </div>
@@ -122,14 +123,14 @@ export const Window: React.FC<WindowProps> = ({ app, onClose, onMinimize, onMaxi
 
       {/* Toolbar */}
       {app.hasToolbar && (
-        <div className="bg-[#ece9d8] border-b border-[#aca899] p-1 flex items-center gap-2 shrink-0">
+        <div className="bg-[#ece9d8] border-b border-[#aca899] p-1 flex items-center gap-2 shrink-0 overflow-x-auto">
             <div className="flex gap-0.5">
-               <button className="flex items-center gap-1 px-1 hover:border border-transparent hover:border-slate-400 rounded-sm disabled:opacity-50 text-black text-xs"><ArrowLeft size={14} className="text-green-600"/> Back</button>
+               <button className="flex items-center gap-1 px-1 hover:border border-transparent hover:border-slate-400 rounded-sm disabled:opacity-50 text-black text-xs whitespace-nowrap"><ArrowLeft size={14} className="text-green-600"/> Back</button>
                <button className="flex items-center gap-1 px-1 hover:border border-transparent hover:border-slate-400 rounded-sm text-black text-xs"><ArrowRight size={14} className="text-green-600"/></button>
             </div>
-            <div className="h-5 w-[1px] bg-gray-400 mx-1"></div>
-            <button className="flex items-center gap-1 px-1 hover:border border-transparent hover:border-slate-400 rounded-sm text-black text-xs"><Search size={14}/> Search</button>
-            <button className="flex items-center gap-1 px-1 hover:border border-transparent hover:border-slate-400 rounded-sm text-black text-xs"><Folder size={14}/> Folders</button>
+            <div className="h-5 w-[1px] bg-gray-400 mx-1 shrink-0"></div>
+            <button className="flex items-center gap-1 px-1 hover:border border-transparent hover:border-slate-400 rounded-sm text-black text-xs whitespace-nowrap"><Search size={14}/> Search</button>
+            <button className="flex items-center gap-1 px-1 hover:border border-transparent hover:border-slate-400 rounded-sm text-black text-xs whitespace-nowrap"><Folder size={14}/> Folders</button>
         </div>
       )}
 
@@ -141,14 +142,14 @@ export const Window: React.FC<WindowProps> = ({ app, onClose, onMinimize, onMaxi
       </div>
       
       {/* Status Bar */}
-      <div className="h-5 bg-[#ece9d8] border-t border-[#aca899] flex items-center px-2 text-[11px] gap-4 text-gray-600 select-none shrink-0 relative">
-          <span>{app.status}</span>
-          <span className="border-l border-gray-400 pl-2">My Computer</span>
+      <div className="h-5 bg-[#ece9d8] border-t border-[#aca899] flex items-center px-2 text-[11px] gap-4 text-gray-600 select-none shrink-0 relative overflow-hidden">
+          <span className="truncate">{app.status}</span>
+          <span className="border-l border-gray-400 pl-2 truncate hidden sm:inline">My Computer</span>
           
           {/* Resize Grip - Hide if maximized */}
           {!isMaximized && (
             <div 
-                className="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-50 flex items-end justify-end p-0.5"
+                className="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-50 flex items-end justify-end p-0.5 touch-none"
                 onMouseDown={handleResizeStart}
             >
                 <div className="w-[1px] h-[1px] bg-gray-400 mb-[2px] mr-[2px] shadow-[1px_1px_0_white]"></div>

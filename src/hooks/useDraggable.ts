@@ -5,37 +5,58 @@ export const useDraggable = (id: string, initialPos: { x: number; y: number }, o
   const [dragging, setDragging] = useState(false);
   const rel = useRef({ x: 0, y: 0 });
 
-  const onMouseDown = (e: React.MouseEvent) => {
-    if (e.button !== 0) return;
+  const onStart = (clientX: number, clientY: number) => {
     onFocus(id);
     setDragging(true);
     rel.current = {
-      x: e.clientX - pos.x,
-      y: e.clientY - pos.y
+      x: clientX - pos.x,
+      y: clientY - pos.y
     };
+  };
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
     e.stopPropagation();
     e.preventDefault();
+    onStart(e.clientX, e.clientY);
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    e.stopPropagation();
+    const touch = e.touches[0];
+    onStart(touch.clientX, touch.clientY);
   };
 
   useEffect(() => {
-    const onMouseMove = (e: MouseEvent) => {
+    const onMove = (clientX: number, clientY: number) => {
       if (!dragging) return;
       setPos({
-        x: e.clientX - rel.current.x,
-        y: e.clientY - rel.current.y
+        x: clientX - rel.current.x,
+        y: clientY - rel.current.y
       });
     };
-    const onMouseUp = () => setDragging(false);
+
+    const onMouseMove = (e: MouseEvent) => onMove(e.clientX, e.clientY);
+    const onTouchMove = (e: TouchEvent) => {
+        if (dragging) e.preventDefault(); // Prevent scrolling while dragging
+        const touch = e.touches[0];
+        onMove(touch.clientX, touch.clientY);
+    };
+    const onEnd = () => setDragging(false);
 
     if (dragging) {
       window.addEventListener('mousemove', onMouseMove);
-      window.addEventListener('mouseup', onMouseUp);
+      window.addEventListener('mouseup', onEnd);
+      window.addEventListener('touchmove', onTouchMove, { passive: false });
+      window.addEventListener('touchend', onEnd);
     }
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('mouseup', onEnd);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onEnd);
     };
-  }, [dragging, pos.x, pos.y, id, onFocus]);
+  }, [dragging]);
 
-  return { pos, onMouseDown, dragging };
+  return { pos, onMouseDown, onTouchStart, dragging };
 };

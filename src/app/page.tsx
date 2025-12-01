@@ -5,7 +5,7 @@ import {
   Folder, Image as ImageIcon, Trash2, Github, Linkedin, Mail, Globe, Music, File, Power, FileText, ArrowRight, Cpu
 } from 'lucide-react';
 
-import { PROFILE } from '@/data/content';
+import { PROFILE, PROJECTS } from '@/data/content';
 import { playSound } from '@/utils/helpers';
 import { BootScreen } from '@/components/os/BootScreen';
 import { LoginScreen } from '@/components/os/LoginScreen';
@@ -26,7 +26,6 @@ export default function Desktop() {
   const [startOpen, setStartOpen] = useState(false);
   const [time, setTime] = useState(new Date());
   
-  // Track if welcome screen has opened
   const [hasWelcomeOpened, setHasWelcomeOpened] = useState(false);
 
   useEffect(() => {
@@ -47,7 +46,7 @@ export default function Desktop() {
     const newWin: WindowApp = { ...appDef, state: 'OPEN' };
     setWindows(prev => [...prev, newWin]);
     setActiveId(appId);
-  }, [windows]); // Added windows dependency
+  }, [windows]);
 
   const closeWindow = useCallback((id: string) => {
     setWindows(prev => prev.filter(w => w.id !== id));
@@ -59,7 +58,6 @@ export default function Desktop() {
     setActiveId(null);
   }, []);
 
-  // NEW: Toggle Maximize Function
   const toggleMaximize = useCallback((id: string) => {
     setWindows(prev => prev.map(w => 
         w.id === id 
@@ -106,27 +104,29 @@ export default function Desktop() {
       iconComp: <div className="w-4 h-4 bg-orange-500 rounded-full border border-white"></div>,
       component: <WelcomeApp openApp={openApp} />,
       size: { w: 600, h: 450 },
-      defaultPos: { x: 100, y: 80 },
+      defaultPos: { x: 20, y: 20 }, // Adjusted for mobile safety
       hasMenu: false,
       hasToolbar: false,
       status: "Done"
     },
     work: {
       id: 'work',
-      title: 'My Experience',
+      title: 'My Projects',
       iconComp: <Folder size={16} className="text-yellow-400 fill-yellow-400"/>,
       component: <WorkApp openApp={openApp} />,
       size: { w: 700, h: 500 },
+      defaultPos: { x: 30, y: 30 },
       hasMenu: true,
       hasToolbar: true,
       status: "3 Objects"
     },
     gallery: {
       id: 'gallery',
-      title: 'My Gallery - Windows Picture and Fax Viewer',
+      title: 'My Gallery',
       iconComp: <ImageIcon size={16} className="text-blue-500"/>,
       component: <GalleryApp />,
       size: { w: 600, h: 500 },
+      defaultPos: { x: 40, y: 40 },
       hasMenu: true,
       hasToolbar: true,
       status: "Image 1 of 3"
@@ -137,6 +137,7 @@ export default function Desktop() {
       iconComp: <Mail size={16} className="text-blue-700"/>,
       component: <OutlookApp />,
       size: { w: 700, h: 500 },
+      defaultPos: { x: 50, y: 50 },
       hasMenu: true,
       hasToolbar: false,
       status: "Online"
@@ -149,7 +150,7 @@ export default function Desktop() {
       size: { w: 300, h: 150 },
       hasMenu: false,
       hasToolbar: false,
-      defaultPos: { x: 200, y: 150 },
+      defaultPos: { x: 60, y: 60 },
       status: "Playing"
     },
     cv: {
@@ -158,40 +159,40 @@ export default function Desktop() {
         iconComp: <File size={16} className="text-green-600"/>,
         component: <ResumeViewerApp />,
         size: { w: 550, h: 650 },
-        defaultPos: { x: 150, y: 50 },
+        defaultPos: { x: 20, y: 20 },
         hasMenu: true,
         hasToolbar: false,
         status: "Online"
     },
     remoteFace: {
         id: 'remoteFace',
-        title: 'RemoteFace - Experience Details',
+        title: 'RemoteFace - Experience',
         iconComp: <Globe size={16} className="text-blue-500"/>,
         component: <RemoteFaceApp />,
         size: { w: 650, h: 450 },
-        defaultPos: { x: 200, y: 100 },
+        defaultPos: { x: 40, y: 40 },
         hasMenu: true,
         hasToolbar: false,
         status: "RemoteFace.doc"
     },
     powerMatix: {
         id: 'powerMatix',
-        title: 'PowerMatix - Experience Details',
+        title: 'PowerMatix - Experience',
         iconComp: <Cpu size={16} className="text-green-600"/>,
         component: <PowerMatixApp />,
         size: { w: 650, h: 450 },
-        defaultPos: { x: 250, y: 150 },
+        defaultPos: { x: 50, y: 50 },
         hasMenu: true,
         hasToolbar: false,
         status: "PowerMatix.doc"
     },
     hexalyze: {
         id: 'hexalyze',
-        title: 'Hexalyze - Experience Details',
+        title: 'Hexalyze - Experience',
         iconComp: <Folder size={16} className="text-yellow-400 fill-yellow-400"/>,
         component: <HexalyzeApp />,
         size: { w: 650, h: 450 },
-        defaultPos: { x: 300, y: 200 },
+        defaultPos: { x: 60, y: 60 },
         hasMenu: true,
         hasToolbar: false,
         status: "Hexalyze.doc"
@@ -212,10 +213,10 @@ export default function Desktop() {
       }}
       onClick={() => setStartOpen(false)}
     >
-      {/* 1. Desktop Icons */}
-      <div className="absolute top-0 left-0 bottom-8 w-full p-4 flex flex-col flex-wrap content-start gap-6 pointer-events-none z-0">
+      {/* 1. Desktop Icons - Added overflow handling for small screens */}
+      <div className="absolute top-0 left-0 bottom-8 w-full p-4 flex flex-col flex-wrap content-start gap-6 z-0 overflow-y-auto">
          {[
-           { label: 'My Experience', icon: <Folder size={32} className="text-[#fcebb6] drop-shadow-md fill-[#fcebb6]" stroke="#eab308" />, action: () => openApp(APPS.work.id) },
+           { label: 'My Projects', icon: <Folder size={32} className="text-[#fcebb6] drop-shadow-md fill-[#fcebb6]" stroke="#eab308" />, action: () => openApp(APPS.work.id) },
            { label: 'My Gallery', icon: <div className="w-9 h-9 bg-white border border-gray-300 shadow-md p-1 flex items-center justify-center"><ImageIcon size={24} className="text-pink-500"/></div>, action: () => openApp(APPS.gallery.id) },
            { label: 'Outlook Express', icon: <div className="relative"><Mail size={32} className="text-white drop-shadow-md fill-blue-500"/><div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5"><ArrowRight size={10} className="text-green-600"/></div></div>, action: () => openApp(APPS.outlook.id) },
            { label: 'My CV', icon: <File size={32} className="text-green-600 drop-shadow-md fill-white" />, action: () => openApp(APPS.cv.id) },
@@ -225,6 +226,7 @@ export default function Desktop() {
              key={i} 
              className="w-20 flex flex-col items-center gap-1 group pointer-events-auto cursor-pointer" 
              onDoubleClick={icon.action}
+             onTouchEnd={icon.action} // Add touch support for opening apps
            >
              <div className="filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] transition-transform group-active:scale-95 opacity-90 group-hover:opacity-100">
                {icon.icon}
@@ -244,28 +246,28 @@ export default function Desktop() {
           isActive={activeId === w.id} 
           onClose={closeWindow}
           onMinimize={minimizeWindow}
-          onMaximize={toggleMaximize} // PASSED HERE
+          onMaximize={toggleMaximize}
           onFocus={focusWindow}
           onResize={resizeWindow}
         />
       ))}
 
-      {/* 3. Start Menu */}
+      {/* 3. Start Menu - Responsive Width */}
       {startOpen && (
         <div 
-          className="absolute bottom-0 left-0 w-80 sm:w-96 h-[450px] z-[1000] rounded-t-lg overflow-hidden flex flex-col shadow-[4px_4px_10px_rgba(0,0,0,0.5)] border-2 border-[#0055ea] origin-bottom-left animate-[slideUp_0.1s_ease-out]"
+          className="absolute bottom-0 left-0 w-[90vw] sm:w-96 h-[450px] max-h-[80vh] z-[1000] rounded-t-lg overflow-hidden flex flex-col shadow-[4px_4px_10px_rgba(0,0,0,0.5)] border-2 border-[#0055ea] origin-bottom-left animate-[slideUp_0.1s_ease-out]"
           style={{ bottom: '30px' }}
           onClick={e => e.stopPropagation()}
         >
-          <div className="h-14 bg-gradient-to-b from-[#2257d3] to-[#1240ab] flex items-center px-2 gap-3 border-b-2 border-orange-400 shadow-md">
+          <div className="h-14 bg-gradient-to-b from-[#2257d3] to-[#1240ab] flex items-center px-2 gap-3 border-b-2 border-orange-400 shadow-md shrink-0">
             <div className="w-10 h-10 rounded border-2 border-white/50 bg-blue-200 overflow-hidden shadow-inner">
                <img src={PROFILE.avatar} alt="Avatar" className="w-full h-full object-cover" />
             </div>
             <span className="text-white font-bold text-lg drop-shadow-md shadow-black">{PROFILE.name}</span>
           </div>
 
-          <div className="flex-1 bg-white flex">
-             <div className="w-1/2 flex flex-col py-2 px-1 gap-1 border-r border-gray-200">
+          <div className="flex-1 bg-white flex overflow-hidden">
+             <div className="w-1/2 flex flex-col py-2 px-1 gap-1 border-r border-gray-200 overflow-y-auto">
                 {[
                   { name: "Internet", sub: "Internet Explorer", icon: <Globe size={24} className="text-blue-500"/>, action: () => openApp(APPS.work.id), bold: true },
                   { name: "E-mail", sub: "Outlook Express", icon: <Mail size={24} className="text-blue-500"/>, action: () => openApp(APPS.outlook.id), bold: true },
@@ -274,8 +276,8 @@ export default function Desktop() {
                   { name: "My Gallery", icon: <ImageIcon size={20} className="text-pink-600"/>, action: () => openApp(APPS.gallery.id) },
                   { name: "Winamp", icon: <Music size={20} className="text-yellow-600"/>, action: () => openApp(APPS.winamp.id) },
                 ].map((item, i) => (
-                   item.sep ? <div key={i} className="h-[1px] bg-gray-200 my-1 mx-2"/> :
-                   <div key={i} className="group px-2 py-1 flex items-center gap-2 hover:bg-[#316ac5] hover:text-white cursor-pointer rounded-sm transition-colors" onClick={() => { item.action && item.action(); setStartOpen(false); }}>
+                   item.sep ? <div key={i} className="h-[1px] bg-gray-200 my-1 mx-2 shrink-0"/> :
+                   <div key={i} className="group px-2 py-1 flex items-center gap-2 hover:bg-[#316ac5] hover:text-white cursor-pointer rounded-sm transition-colors shrink-0" onClick={() => { item.action && item.action(); setStartOpen(false); }}>
                       <div className="filter drop-shadow-sm group-hover:brightness-125">{item.icon}</div>
                       <div className="flex flex-col">
                          <span className={`text-xs text-gray-800 group-hover:text-white ${item.bold ? 'font-bold' : ''}`}>{item.name}</span>
@@ -284,14 +286,14 @@ export default function Desktop() {
                    </div>
                 ))}
                 
-                <div className="mt-auto px-2 py-2 text-center">
+                <div className="mt-auto px-2 py-2 text-center shrink-0">
                    <div className="bg-white hover:bg-blue-100 border border-transparent hover:border-blue-200 cursor-pointer py-1 flex justify-center items-center gap-1 font-bold text-[10px] text-gray-700">
                       All Programs <div className="w-3 h-3 bg-green-500 rounded-full flex items-center justify-center text-white text-[8px]">▶</div>
                    </div>
                 </div>
              </div>
 
-             <div className="w-1/2 bg-[#d3e5fa] border-l border-[#95bdee] py-2 px-1 flex flex-col gap-1 text-[#00136b] text-xs">
+             <div className="w-1/2 bg-[#d3e5fa] border-l border-[#95bdee] py-2 px-1 flex flex-col gap-1 text-[#00136b] text-xs overflow-y-auto">
                 {[
                   { name: "My Documents", icon: "folder", bold: true, action: () => openApp(APPS.work.id) },
                   { name: "My CV", icon: "doc", action: () => openApp(APPS.cv.id) },
@@ -302,8 +304,8 @@ export default function Desktop() {
                   { name: "Search", icon: "search", action: () => {} },
                   { name: "Run...", icon: "run", action: () => {} },
                 ].map((item, i) => (
-                  item.sep ? <div key={i} className="h-[1px] bg-[#95bdee] my-1 mx-2 opacity-50"/> :
-                  <div key={i} className="flex items-center gap-2 px-2 py-1 hover:bg-[#316ac5] hover:text-white cursor-pointer rounded-sm group" onClick={() => { item.action && item.action(); setStartOpen(false); }}>
+                  item.sep ? <div key={i} className="h-[1px] bg-[#95bdee] my-1 mx-2 opacity-50 shrink-0"/> :
+                  <div key={i} className="flex items-center gap-2 px-2 py-1 hover:bg-[#316ac5] hover:text-white cursor-pointer rounded-sm group shrink-0" onClick={() => { item.action && item.action(); setStartOpen(false); }}>
                      <div className="w-5 flex justify-center">
                         {item.icon === 'folder' && <Folder size={14} className="text-blue-800 group-hover:text-white"/>}
                         {item.icon === 'doc' && <FileText size={14} className="text-blue-800 group-hover:text-white"/>}
@@ -317,7 +319,7 @@ export default function Desktop() {
              </div>
           </div>
 
-          <div className="h-9 bg-[#4282d6] border-t border-[#3c81f3] flex justify-end items-center px-2 gap-2">
+          <div className="h-9 bg-[#4282d6] border-t border-[#3c81f3] flex justify-end items-center px-2 gap-2 shrink-0">
              <button className="flex items-center gap-1 text-white text-[10px] hover:bg-[#2f71cd] px-2 py-0.5 rounded transition-colors" onClick={() => window.location.reload()}>
                <div className="bg-[#e5a01a] p-0.5 rounded shadow-sm"><Power size={10}/></div> Log Off
              </button>
@@ -346,7 +348,7 @@ export default function Desktop() {
 
         <div className="w-[1px] h-5 bg-[#164392] border-r border-[#4c8ef5] mx-1 opacity-50 hidden md:block"></div>
 
-        <div className="flex-1 flex gap-1 px-1 overflow-x-auto">
+        <div className="flex-1 flex gap-1 px-1 overflow-x-auto no-scrollbar">
            {windows.map(w => (
              <button
                key={w.id}
@@ -362,7 +364,7 @@ export default function Desktop() {
            ))}
         </div>
 
-        <div className="h-full bg-[#1290e2] border-l border-[#0d7dc5] pl-2 pr-2 md:pr-4 flex items-center gap-2 text-white text-xs shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2)]">
+        <div className="h-full bg-[#1290e2] border-l border-[#0d7dc5] pl-2 pr-2 md:pr-4 flex items-center gap-2 text-white text-xs shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2)] shrink-0">
             <div className="hidden md:flex gap-1.5">
                <Github size={14} className="hover:text-black cursor-pointer transition-colors" />
                <Linkedin size={14} className="hover:text-blue-900 cursor-pointer transition-colors" />
